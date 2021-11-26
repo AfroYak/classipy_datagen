@@ -5,10 +5,11 @@ from os.path import normpath, join, abspath, dirname
 
 
 class DataGenerator:
-    def __init__(self, n_samples=1000, max_rows=None, output_name=None) -> None:
+    def __init__(self, n_samples=1000, n_datasets=None, output_name=None, to_json=True) -> None:
         self.n_samples = n_samples
-        self.max_rows = max_rows
         self.output_name = output_name
+        self.n_datasets = n_datasets
+        self.to_json = to_json
         self.loc_data = normpath(
             join(dirname(dirname(__file__)), 'raw_data'))
 
@@ -58,3 +59,15 @@ class DataGenerator:
             features[col_name] = [val]
 
         return pd.DataFrame.from_dict(features)
+
+    def download_datasets(self):
+        pass
+
+    def save_dataset(self, df):
+        if self.to_json:
+            output_name = self.output_name + '.json'
+            df.to_json(join(self.loc_data, output_name), default_handler=str, orient = 'records')
+            return None
+
+        output_name = self.output_name + '.csv'
+        df.to_csv(join(self.loc_data, output_name))
