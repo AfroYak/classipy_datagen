@@ -5,7 +5,7 @@ import os
 import shutil
 from os.path import normpath, join, abspath, dirname
 
-from .data_generator import DataGenerator
+from classipy_datagen.data_generator import DataGenerator
 
 
 class KaggleDataset(DataGenerator):
@@ -58,22 +58,29 @@ class KaggleDataset(DataGenerator):
         all_dataframes = []
 
         for dataset_name in self.dataset_names["ref"]:
-            self.api.dataset_download_files(
-                dataset_name, self.loc_temp_data, unzip=True
-            )
 
-            dataset_file_names = self.read_filenames()
-            dataset_dataframes = self.read_data_frame(
-                dataset_file_names, dataset_name)
-            all_dataframes += dataset_dataframes
+            print(f'Fetching :', {dataset_name})
+            try:
+                self.api.dataset_download_files(
+                    dataset_name, self.loc_temp_data, unzip=True
+                )
 
-            # print('Clean-up | ', dataset_name)
-            self.clean_tempfolder()
-
-        df_all = pd.concat(all_dataframes, axis=0).reset_index(
-            drop=True)[:self.max_rows]
-        df_all.to_json(join(self.loc_data, self.output_name))
-
+                dataset_file_names = self.read_filenames()
+                dataset_dataframes = self.read_data_frame(
+                    dataset_file_names, dataset_name)
+                all_dataframes += dataset_dataframes
+            except Exception as e:
+                print(
+                    f'ERROR: {dataset_name}, {type(e)} \n SKIPPING'
+                )
+            else:
+                print(f'Completed :', {dataset_name})
+            finally:
+                df_all = pd.concat(all_dataframes, axis=0).reset_index(
+                    drop=True)[:self.max_rows]
+                df_all.to_json(join(self.loc_data, self.output_name))
+                # print('Clean-up | ', dataset_name)
+                self.clean_tempfolder()
         print(
             f'Completed Creating Dataset | Saved @ {join(self.loc_data,self.output_name)}')
 
@@ -115,7 +122,7 @@ class KaggleDataset(DataGenerator):
 
 
 if __name__ == "__main__":
-    k = KaggleDataset(3)
+    k = KaggleDataset(20000)
     k.download_datasets()
     print('DONE!!')
     pass
