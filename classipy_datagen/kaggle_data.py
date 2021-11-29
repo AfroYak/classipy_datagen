@@ -5,7 +5,7 @@ import os
 import shutil
 from os.path import normpath, join, abspath, dirname
 
-from classipy_datagen.data_generator import DataGenerator
+from .data_generator import DataGenerator
 
 
 class KaggleDataset(DataGenerator):
