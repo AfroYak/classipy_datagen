@@ -3,7 +3,7 @@ from os.path import dirname
 
 from .gbq_data import GBQDataset
 from .kaggle_data import KaggleDataset
-from .utils import create_dataset
+from .utils import create_dataset, merge_data
 
 
 version_file = '{}/version.txt'.format(dirname(__file__))
