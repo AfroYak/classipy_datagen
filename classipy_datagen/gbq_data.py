@@ -37,7 +37,7 @@ class GBQDataset(DataGenerator):
             self.get_queryendpoints()
 
         data_frames = []
-        # TODO: REMOVE LIMIT AFTER TESTING
+
         for endpoint in self.end_points[:self.n_datasets]:
 
             api, dataset_name, table_name = endpoint.values()
@@ -53,6 +53,7 @@ class GBQDataset(DataGenerator):
                 df = pd.read_gbq(query, project_id=self.project_id)
                 df_calc = self.get_dataframe(
                     df, dataset_name, table_name)
+
             except Exception as e:
                 print(
                     f'ERROR: {dataset_name}, {table_name}, {type(e)} \n SKIPPING')

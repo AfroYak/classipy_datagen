@@ -37,7 +37,7 @@ class DataGenerator:
             "column_values": lambda x: ", ".join(map(str, x.tolist())),
             "column_values_unique": lambda x: x.unique(),
             "n_unique_values": lambda x: x.nunique(),
-            "unique_value_counts": lambda x: x.value_counts(),
+            "unique_value_counts": lambda x: {val: freq for val, freq in x.value_counts().items()},
             'n_values': lambda x: x.shape[0],
             "mean": lambda x: x.mean(),
             "std": lambda x: x.std(),
@@ -66,7 +66,8 @@ class DataGenerator:
     def save_dataset(self, df):
         if self.to_json:
             output_name = self.output_name + '.json'
-            df.to_json(join(self.loc_data, output_name), default_handler=str, orient = 'records')
+            df.to_json(join(self.loc_data, output_name),
+                       default_handler=str, orient='records')
             return None
 
         output_name = self.output_name + '.csv'
