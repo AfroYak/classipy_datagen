@@ -7,10 +7,12 @@ from .data_generator import DataGenerator
 
 
 class GBQDataset(DataGenerator):
-    def __init__(self, n_datasets=None, n_samples=1000, max_rows=None, output_name="gbq_data.json", project_id=None) -> None:
-        super().__init__(n_samples, max_rows, output_name)
-        self.n_datasets = n_datasets
-        self.end_points = []
+    def __init__(self, n_datasets=None, n_samples=1000, output_name="gbq_data", project_id=None, end_points=[], to_json=True) -> None:
+        super().__init__(n_samples=n_samples, n_datasets=n_datasets,
+                         output_name=output_name, to_json=to_json)
+
+        # GBQ Specific Parameters
+        self.end_points = end_points
         self.project_id = project_id
         pass
 
@@ -61,9 +63,8 @@ class GBQDataset(DataGenerator):
                 data_frames.append(df_calc)
 
             df_all = pd.concat(data_frames, axis=0).reset_index(
-                drop=True)[:self.max_rows]
-            df_all.to_json(
-                join(self.loc_data, self.output_name))
+                drop=True)
+            self.save_dataset(df_all)
 
         print(
             f'Completed Creating Dataset | Saved @ {join(self.loc_data,self.output_name)}')

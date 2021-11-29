@@ -9,13 +9,17 @@ from .data_generator import DataGenerator
 
 
 class KaggleDataset(DataGenerator):
-    def __init__(self, n_datasets=100, max_size=25_000_000, max_rows=None, n_samples=1000, output_name="kaggle_data.json", datset_names=None) -> None:
-        super().__init__(n_samples, max_rows, output_name)
-        self.n_datasets = n_datasets
+    def __init__(
+        self, n_datasets=100, max_size=25_000_000, n_samples=1000, 
+        output_name="kaggle_data", datset_names=None, to_json=True, page=4
+        ) -> None:
+        super().__init__(n_samples=n_samples, n_datasets=n_datasets,
+                         output_name=output_name, to_json=to_json)
+
+        # Kaggle Specific Parameters
         self.dataset_names = datset_names
         self.max_size = max_size
-        self.max_rows = max_rows
-
+        self.page = page
         self.api = KaggleApi()
         self.api.authenticate()
 
@@ -23,12 +27,11 @@ class KaggleDataset(DataGenerator):
 
     def get_dataset_names(self):
         dataset_names = []
-        page = 4
         dataset_num = 0
         while dataset_num < self.n_datasets:
             try:
                 resp = self.api.datasets_list(
-                    page=page,
+                    page=self.page,
                     filetype="csv",
                     max_size=self.max_size
                 )
@@ -40,7 +43,7 @@ class KaggleDataset(DataGenerator):
                     dataset_num += 1
                     if dataset_num >= self.n_datasets:
                         break
-                page += 1
+                self.page += 1
 
             except IndexError as e:
                 break
@@ -70,9 +73,9 @@ class KaggleDataset(DataGenerator):
             # print('Clean-up | ', dataset_name)
             self.clean_tempfolder()
 
-        df_all = pd.concat(all_dataframes, axis=0).reset_index(
-            drop=True)[:self.max_rows]
-        df_all.to_json(join(self.loc_data, self.output_name))
+            df_all = pd.concat(all_dataframes, axis=0).reset_index(
+                drop=True)
+            self.save_dataset(df_all)
 
         print(
             f'Completed Creating Dataset | Saved @ {join(self.loc_data,self.output_name)}')
